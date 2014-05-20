@@ -15,18 +15,30 @@ var exports = module.exports = function (doc) {
     };
     
     self.set = function (key, value, opts) {
+        opts.expires||(opts.expires=30)
+        var expires = new Date()
+        expires.setDate(expires.getDate() + opts.expires)
         if (!opts) opts = {};
         var s = escape(key) + '=' + escape(value);
-        if (opts.expires) s += '; expires=' + opts.expires;
+        if (opts.expires) s += '; expires=' + expires.toUTCString();
         if (opts.path) s += '; path=' + escape(opts.path);
         doc.cookie = s;
         return s;
     };
+
+    self.delete = function (key) {
+      self.set(key, '', { expires: Date(0) });
+    };
+
     return self;
+
 };
 
 if (typeof document !== 'undefined') {
     var cookie = exports(document);
     exports.get = cookie.get;
     exports.set = cookie.set;
+    exports.delete = cookie.delete;
 }
+
+
